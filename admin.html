@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DPA — Réponses de Steve (admin)</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="admin">
+<div id="gate" style="display:none"></div>
+<div id="modebar" class="modebar"></div>
+<header class="top"><div class="top-in">
+  <div class="brand"><div class="logo">PA</div>
+    <div><b>Réponses — pubs DPA</b><span>Tableau de bord (mise à jour en direct)</span></div></div>
+  <div class="actions">
+    <button class="btn" id="themeBtn" title="Thème clair/sombre">◐</button>
+    <button class="btn primary" id="exportBtn">Copier / exporter</button>
+  </div>
+</div></header>
+
+<div class="tabs" role="tablist">
+  <button class="tab" id="tabPaid" role="tab" aria-selected="true">💰 Campagnes payantes</button>
+  <button class="tab" id="tabOrg" role="tab" aria-selected="false">📅 Calendrier organique</button>
+</div>
+<div class="subbar"><div class="subbar-in">
+  <div class="legend" style="font-size:12px;color:var(--muted);font-weight:600">Se met à jour automatiquement quand Steve répond.</div>
+  <div class="filters" id="filters">
+    <button class="chip" data-f="all" aria-pressed="true">Tout</button>
+    <button class="chip" data-f="valide" aria-pressed="false">Validées</button>
+    <button class="chip" data-f="refuse" aria-pressed="false">Refusées</button>
+    <button class="chip" data-f="attente" aria-pressed="false">En attente</button>
+  </div>
+</div></div>
+
+<main class="wrap">
+  <div class="tiles" id="tiles"></div>
+  <div id="adminList"></div>
+  <div class="foot">Destination Piscine Aide · admin interne</div>
+</main>
+
+<div class="lb" id="lb">
+  <button class="lb-x" id="lbX" aria-label="Fermer">✕</button>
+  <button class="lb-nav prev" id="lbP" aria-label="Précédent">‹</button>
+  <img id="lbImg" alt="">
+  <button class="lb-nav next" id="lbN" aria-label="Suivant">›</button>
+  <div class="lb-count" id="lbC"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="config.js"></script>
+<script>
+/* petit verrou : admin.html?key=<adminKey>. Vide = pas de verrou. */
+(function(){var C=window.DPA_CONFIG||{};if(!C.adminKey)return;
+  var k=new URLSearchParams(location.search).get('key');
+  if(k!==C.adminKey){
+    window.__DPA_BLOCK__=true;                 // app.js ne démarre pas
+    document.addEventListener('DOMContentLoaded',function(){
+      document.body.innerHTML='<div style="max-width:440px;margin:16vh auto;text-align:center;font-family:system-ui;padding:24px">'+
+      '<div style="font-size:40px">🔒</div><h2 style="margin:.4em 0">Accès admin</h2>'+
+      '<p style="color:#5A7085">Ajoutez <code>?key=VOTRE_CODE</code> à la fin de l\'adresse pour voir les réponses de Steve.</p></div>';
+    });
+  }
+})();
+</script>
+<script src="data.js"></script>
+<script src="store.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

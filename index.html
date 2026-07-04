@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Publicités DPA — Été 2026 · à valider</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="review">
+<div id="modebar" class="modebar"></div>
+<header class="top"><div class="top-in">
+  <div class="brand"><div class="logo">PA</div>
+    <div><b>Publicités DPA · Été 2026</b><span>Merci de valider — Destination Piscine Aide</span></div></div>
+  <label class="who">Vous êtes : <input id="reviewer" type="text" aria-label="Votre nom"></label>
+  <span class="prog" id="prog">0/0</span>
+  <div class="actions">
+    <button class="btn" id="themeBtn" title="Thème clair/sombre">◐</button>
+    <button class="btn" id="exportBtn">Envoyer mes réponses</button>
+  </div>
+</div></header>
+
+<div class="tabs" role="tablist">
+  <button class="tab" id="tabPaid" role="tab" aria-selected="true">💰 Campagnes payantes</button>
+  <button class="tab" id="tabOrg" role="tab" aria-selected="false">📅 Calendrier organique</button>
+</div>
+<div class="subbar"><div class="subbar-in">
+  <div class="legend" id="legend"></div>
+  <div class="filters" id="filters">
+    <button class="chip" data-f="all" aria-pressed="true">Tout</button>
+    <button class="chip" data-f="attente" aria-pressed="false">À décider</button>
+    <button class="chip" data-f="valide" aria-pressed="false">Validées</button>
+    <button class="chip" data-f="refuse" aria-pressed="false">Refusées</button>
+  </div>
+</div></div>
+
+<main class="wrap">
+  <section class="view on" id="viewPaid">
+    <div class="hero">
+      <div class="eyebrow">À valider · Facebook</div>
+      <h1>Les campagnes publicitaires payantes</h1>
+      <p class="lede">Pour chaque pub : regardez le visuel et le texte, puis cliquez <b>Valider</b> ou <b>Refuser</b>. Ajoutez un <b>commentaire</b> si vous voulez changer quelque chose. Tout se sauvegarde tout seul.</p>
+    </div>
+    <div id="paidApp"></div>
+  </section>
+  <section class="view" id="viewOrg">
+    <div class="hero">
+      <div class="eyebrow">À valider · Facebook + Instagram</div>
+      <h1>Le calendrier des publications</h1>
+      <p class="lede">Les publications prévues du 26 juin au 20 juillet. Même chose : <b>Valider</b> / <b>Refuser</b> + commentaire au besoin.</p>
+    </div>
+    <div id="orgApp"></div>
+  </section>
+  <div class="foot">Destination Piscine Aide · 1451 Rue de Montarville, Saint-Bruno-de-Montarville · destinationpiscineaide.com · 450-723-1110</div>
+</main>
+
+<div class="lb" id="lb">
+  <button class="lb-x" id="lbX" aria-label="Fermer">✕</button>
+  <button class="lb-nav prev" id="lbP" aria-label="Précédent">‹</button>
+  <img id="lbImg" alt="">
+  <button class="lb-nav next" id="lbN" aria-label="Suivant">›</button>
+  <div class="lb-count" id="lbC"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="store.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
