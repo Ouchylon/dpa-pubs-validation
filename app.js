@@ -51,6 +51,7 @@
         <button class="more">Voir le texte complet</button>
         <div class="meta"><b>Objectif :</b> ${esc(p.objective)} · <b>Budget :</b> ${esc(p.budget)}<br>
           <b>Cible :</b> ${esc(p.geo)} · ${esc(p.age)}</div>
+        <div class="dest"><span class="dl">🔗 Lien (${esc(p.cta)})</span> ${/^https?:/.test(p.link)?`<a href="${p.link}" target="_blank" rel="noopener">${esc(p.link.replace(/^https?:\/\//,''))}</a>`:`<span class="dtxt">${esc(p.link)}</span>`}</div>
         ${decBlock(p.ad_id)}
       </div>`;
     wireCard(el,p); return el;
