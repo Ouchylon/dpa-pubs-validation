@@ -47,8 +47,26 @@
   const WEEKS = (D.weeks && D.weeks.length) ? D.weeks
     : [{w:1,t:'Semaine 1',rng:''},{w:2,t:'Semaine 2',rng:''},{w:3,t:'Semaine 3',rng:''},{w:9,t:'Extras',rng:''}];
 
+  function renderStrategy(){
+    const el=document.getElementById('strategy'); if(!el||!D.analysis) return;
+    let a='<div class="panel"><h2><span class="ic">🎯</span> L\'analyse — pourquoi ce plan</h2><div class="anal">';
+    D.analysis.forEach(x=>a+=`<div class="a"><b>${esc(x.t)}</b><p>${esc(x.d)}</p></div>`);
+    a+='</div></div>';
+    const max=Math.max(...D.budget.map(b=>parseInt(b.day)||0),1);
+    let b=`<div class="panel"><h2><span class="ic">💵</span> Le budget — ${esc(D.meta.total_month)}</h2>
+      <p class="sub">Enveloppe par levier. Les variantes d'une même catégorie se partagent son budget (on teste, on garde la gagnante).</p>
+      <div class="tblwrap"><table class="bud"><thead><tr><th>Levier</th><th>Par jour</th><th>Par mois</th><th>Pourquoi</th></tr></thead><tbody>`;
+    D.budget.forEach(r=>{const w=Math.round((parseInt(r.day)||0)/max*70)+8;
+      b+=`<tr><td><span class="bar" style="width:${w}px;background:${r.color}"></span>${esc(r.track)}</td><td class="n">${esc(r.day)}</td><td class="n">${esc(r.month)}</td><td style="color:var(--muted)">${esc(r.note)}</td></tr>`;});
+    b+=`<tr class="tot"><td>Total croissance</td><td class="n">${esc(D.meta.total_day)}</td><td class="n">${esc(D.meta.total_month)}</td><td style="color:var(--muted)">Priorité ventes en ligne + roulement magasin.</td></tr>`;
+    b+='</tbody></table></div></div>';
+    let c='<div class="panel"><h2><span class="ic">👥</span> Les audiences — à réutiliser</h2><p class="sub">Créez-les une fois dans Ads Manager, réutilisez-les dans plusieurs pubs.</p><div class="auds">';
+    D.audiences.forEach(x=>c+=`<div class="aud"><b>${esc(x.name)}</b><div class="geo">📍 ${esc(x.geo)} · ${esc(x.age)}</div><div class="d">${esc(x.desc)}</div><div class="u"><em>Sert à :</em> ${esc(x.use)}</div></div>`);
+    c+='</div></div>';
+    el.innerHTML=a+b+c;
+  }
   function renderReview(){
-    renderPaidReview(); renderOrgReview();
+    renderStrategy(); renderPaidReview(); renderOrgReview();
     document.getElementById('legend').innerHTML = view==='paid'?legendPaid():legendOrg();
     updateProgress(); applyFilter();
   }

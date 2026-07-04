@@ -83,6 +83,29 @@ h1{font-size:clamp(23px,4vw,34px);line-height:1.09;letter-spacing:-.025em;margin
 .lede b{color:var(--ink);font-weight:600}
 .view{display:none} .view.on{display:block}
 
+/* ---- panneaux stratégie (analyse / budget / audiences) ---- */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin:18px 0;box-shadow:var(--shadow)}
+.panel h2{font-size:16px;font-weight:700;letter-spacing:-.01em;margin:0 0 3px;display:flex;align-items:center;gap:9px}
+.panel .sub{font-size:12.5px;color:var(--muted);margin:0 0 15px}
+.panel h2 .ic{width:24px;height:24px;border-radius:7px;background:var(--accent-soft);display:grid;place-items:center;color:var(--accent-deep);font-size:14px;flex:none}
+.anal{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px}
+.anal .a{border:1px solid var(--line-2);border-radius:12px;padding:13px 15px;background:var(--surface-2)}
+.anal .a b{display:block;font-size:13px;margin-bottom:4px;color:var(--ink)}
+.anal .a p{margin:0;font-size:12.6px;color:var(--muted);line-height:1.5}
+.tblwrap{overflow-x:auto}
+table.bud{width:100%;border-collapse:collapse;font-size:13px;min-width:520px}
+table.bud th,table.bud td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line-2)}
+table.bud th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+table.bud td.n{font-variant-numeric:tabular-nums;font-weight:650;white-space:nowrap}
+table.bud .bar{display:inline-block;height:9px;border-radius:5px;vertical-align:middle;margin-right:8px}
+table.bud tr.tot td{border-top:2px solid var(--line);border-bottom:none;font-weight:700;padding-top:12px}
+table.bud tr.tot td.n{color:var(--accent-deep)}
+.auds{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:13px}
+.aud{border:1px solid var(--line-2);border-radius:12px;padding:13px 15px;background:var(--surface-2)}
+.aud b{font-size:13px} .aud .geo{font-size:11.5px;color:var(--accent-deep);font-weight:600;margin:3px 0}
+.aud .d{font-size:12.2px;color:var(--muted);line-height:1.45;margin:4px 0 6px}
+.aud .u{font-size:11.5px;color:var(--ink);border-top:1px dashed var(--line);padding-top:6px}
+.aud .u em{color:var(--muted);font-style:normal}
 .sec{padding:22px 0 4px}
 .sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:15px}
 .sec-h h2{font-size:18px;font-weight:650;letter-spacing:-.02em;margin:0}
