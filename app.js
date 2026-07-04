@@ -21,6 +21,27 @@
   let reviewer = localStorage.getItem('dpa_reviewer') || C.reviewerDefault || 'Steve';
 
   const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const COPY={}; let cid=0;
+  const reg=t=>{const id='c'+(cid++);COPY[id]=t;return id;};
+  function fld(lbl,val,mono){const id=reg(val);
+    return `<div class="copyf"><div class="fh"><span class="lbl">${esc(lbl)}</span><button class="cbtn" data-copy="${id}">⧉ Copier</button></div><div class="val${mono?' mono':''}">${esc(val)}</div></div>`;}
+  function linkFld(lbl,val){const id=reg(val); const isUrl=/^https?:/.test(val);
+    const inner=isUrl?`<a href="${esc(val).replace(/"/g,'%22')}" target="_blank" rel="noopener">${esc(val)}</a>`:esc(val);
+    return `<div class="copyf"><div class="fh"><span class="lbl">${esc(lbl)}</span><button class="cbtn" data-copy="${id}">⧉ Copier</button></div><div class="val mono">${inner}</div></div>`;}
+  function fullSetup(p){const tr=TRACKS[p.track];
+    return [`CAMPAGNE ${p.id} — ${p.name}`,`Levier : ${tr.l}`,'',
+      '--- RÉGLAGES ---',`Objectif : ${p.objective}`,`Budget : ${p.budget}`,`Optimisation : ${p.optim}`,
+      `Emplacements : ${p.place}`,`Format : ${p.fmt}`,`KPI cible : ${p.kpi}`,'',
+      '--- AUDIENCE ---',`Géo : ${p.geo}`,`Âge : ${p.age} | Genre : ${p.gender}`,
+      `Intérêts : ${(p.interests||[]).join(', ')}`,`Exclusions : ${p.exclude}`,'',
+      '--- CRÉATIF ---','Texte principal :',p.primary,'',`Titre : ${p.headline}`,`Description : ${p.desc}`,
+      `Bouton (CTA) : ${p.cta}`,`Lien : ${p.link}`,'',`Pourquoi : ${p.why}`].join('\n');}
+  function copyText(txt,msg){
+    (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast(msg||'Copié')).catch(()=>{
+      const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();
+      try{document.execCommand('copy');}catch(e){} ta.remove();toast(msg||'Copié');});}
+  function flash(btn){const t=btn.textContent;btn.classList.add('ok');btn.textContent='✓ Copié';
+    setTimeout(()=>{btn.classList.remove('ok');btn.textContent=t;},1300);}
 
   /* ---------------- REVIEW (Steve) ---------------- */
   const WEEKS = (D.weeks && D.weeks.length) ? D.weeks
@@ -40,21 +61,53 @@
         <div style="font-size:11.5px;opacity:.92;margin-top:2px">Visuel = fiches produits / catalogue</div></div></div>`;
   }
   function paidCardR(p){
-    const tr=TRACKS[p.track]; const el=document.createElement('article');
-    el.className='card'; el.dataset.id=p.ad_id; el.style.setProperty('--tc',tr.c);
+    const tr=TRACKS[p.track]; const st=state[p.ad_id]||{};
+    const el=document.createElement('article');
+    el.className='card'+(st.status?(' '+st.status):''); el.dataset.id=p.ad_id; el.dataset.st=st.status||''; el.style.setProperty('--tc',tr.c);
+    const tags=(p.interests||[]).map(x=>`<span class="tag">${esc(x)}</span>`).join('');
     el.innerHTML=`
       ${mediaBlock(p, tr, p.id+' · '+tr.l)}
-      <div class="body">
-        <div class="ttl">${esc(p.name)}</div>
-        <div class="why"><b>Pourquoi :</b> ${esc(p.why)}</div>
-        <div class="cap">${esc(p.primary)}</div>
-        <button class="more">Voir le texte complet</button>
-        <div class="meta"><b>Objectif :</b> ${esc(p.objective)} · <b>Budget :</b> ${esc(p.budget)}<br>
-          <b>Cible :</b> ${esc(p.geo)} · ${esc(p.age)}</div>
-        <div class="dest"><span class="dl">🔗 Lien (${esc(p.cta)})</span> ${/^https?:/.test(p.link)?`<a href="${p.link}" target="_blank" rel="noopener">${esc(p.link.replace(/^https?:\/\//,''))}</a>`:`<span class="dtxt">${esc(p.link)}</span>`}</div>
-        ${decBlock(p.ad_id)}
+      <div class="ptop"><span class="pid">${esc(p.id)}</span><span class="ptrack">${esc(tr.l)}</span></div>
+      <div class="pname">${esc(p.name)}</div>
+      <div class="why"><b>Pourquoi :</b> ${esc(p.why)}</div>
+      <div class="pbody">
+        <div class="grp"><span class="lbl">Réglages de campagne</span>
+          <dl class="kv">
+            <dt>Objectif</dt><dd class="hot">${esc(p.objective)}</dd>
+            <dt>Budget</dt><dd class="hot">${esc(p.budget)}</dd>
+            <dt>Optimisation</dt><dd>${esc(p.optim)}</dd>
+            <dt>Emplacements</dt><dd>${esc(p.place)}</dd>
+            <dt>Format</dt><dd>${esc(p.fmt)}</dd>
+            <dt>KPI cible</dt><dd>${esc(p.kpi)}</dd>
+          </dl></div>
+        <div class="grp"><span class="lbl">Audience / démographie</span>
+          <dl class="kv">
+            <dt>Géo</dt><dd>${esc(p.geo)}</dd>
+            <dt>Âge</dt><dd>${esc(p.age)} · ${esc(p.gender)}</dd>
+            <dt>Exclusions</dt><dd>${esc(p.exclude)}</dd>
+          </dl>
+          <div class="tags">${tags}</div>
+        </div>
+        <div class="grp"><span class="lbl">Créatif — à copier-coller</span>
+          ${fld('Texte principal',p.primary)}
+          ${fld('Titre',p.headline)}
+          ${fld('Description',p.desc)}
+          <dl class="kv"><dt>Bouton (CTA)</dt><dd class="hot">${esc(p.cta)}</dd></dl>
+          ${linkFld('Lien / destination',p.link)}
+        </div>
+        <div class="pfoot"><button class="copyall">⧉ Copier tout le setup</button></div>
+        <div class="pdecwrap">${decBlock(p.ad_id)}</div>
       </div>`;
-    wireCard(el,p); return el;
+    el.querySelectorAll('.cbtn').forEach(btn=>btn.addEventListener('click',()=>{copyText(COPY[btn.dataset.copy],'Copié');flash(btn);}));
+    el.querySelector('.copyall').addEventListener('click',e=>{copyText(fullSetup(p),'Setup complet copié');flash(e.currentTarget);});
+    el.querySelector('.v').addEventListener('click',()=>setStatus(p.ad_id,'valide'));
+    el.querySelector('.r').addEventListener('click',()=>setStatus(p.ad_id,'refuse'));
+    const cmt=el.querySelector('.cmt'); let t;
+    cmt.addEventListener('input',()=>{clearTimeout(t);t=setTimeout(()=>saveRow(p.ad_id),700);});
+    cmt.addEventListener('blur',()=>saveRow(p.ad_id));
+    const media=el.querySelector('.media');
+    if(p.slides.length && media) media.addEventListener('click',()=>openLB(p,0));
+    return el;
   }
   function orgCardR(a){
     const cat=CAT[a.cat]; const el=document.createElement('article');
@@ -106,7 +159,7 @@
       const items=D.paid.filter(p=>p.track===tk); if(!items.length)return;
       const sec=document.createElement('section'); sec.className='sec';
       sec.innerHTML=`<div class="sec-h"><h2>${TRACKS[tk].l}</h2><span class="rng">${items.length} pub(s)</span><span class="ln"></span></div>`;
-      const g=document.createElement('div'); g.className='grid'; items.forEach(p=>g.appendChild(paidCardR(p)));
+      const g=document.createElement('div'); g.className='grid paidgrid'; items.forEach(p=>g.appendChild(paidCardR(p)));
       sec.appendChild(g); app.appendChild(sec);
     });
   }
