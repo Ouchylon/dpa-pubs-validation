@@ -14,6 +14,7 @@
   D.paid.forEach(a=>{a.ad_id=a.id; a.kind='paid'; a.label=a.id+' '+a.name;});
   const ALL=[...D.paid, ...D.organic];
   const byId={}; ALL.forEach(a=>byId[a.ad_id]=a);
+  const COLS = window.DPA_COLLECTIONS || {groups:[],collections:[],base:''};
 
   const PAGE=document.body.dataset.page; // 'review' | 'admin'
   let state={};           // ad_id -> row
@@ -66,7 +67,7 @@
     el.innerHTML=a+b+c;
   }
   function renderReview(){
-    renderStrategy(); renderPaidReview(); renderOrgReview();
+    renderStrategy(); renderPaidReview(); renderOrgReview(); renderPromo();
     document.getElementById('legend').innerHTML = view==='paid'?legendPaid():legendOrg();
     updateProgress(); applyFilter();
   }
@@ -221,6 +222,61 @@
     el.textContent=`${done}/${ALL.length} répondues`;
   }
 
+  /* ---------------- PROMO (Steve choisit les collections à promouvoir) ---------------- */
+  function renderPromo(){
+    const app=document.getElementById('promoApp'); if(!app)return; app.innerHTML='';
+    COLS.groups.forEach(g=>{
+      const items=COLS.collections.filter(c=>c.group===g); if(!items.length)return;
+      const sec=document.createElement('section'); sec.className='sec promosec';
+      sec.innerHTML=`<div class="sec-h"><h2>${esc(g)}</h2><span class="rng">${items.length} collection(s)</span><span class="ln"></span></div>`;
+      const grid=document.createElement('div'); grid.className='grid promogrid';
+      items.forEach(c=>grid.appendChild(promoCard(c)));
+      sec.appendChild(grid); app.appendChild(sec);
+    });
+    updatePromoCount();
+  }
+  function promoCard(c){
+    const id='COL:'+c.handle; const r=state[id]||{}; const on=r.status==='valide';
+    const el=document.createElement('article');
+    el.className='pcol'+(on?' on':''); el.dataset.id=id;
+    el.innerHTML=`
+      <div class="pcol-h">
+        <div class="pcol-t">${esc(c.title)}</div>
+        <div class="pcol-m">${c.count} produit(s) · <a href="${esc(COLS.base+c.handle)}" target="_blank" rel="noopener">voir ↗</a></div>
+      </div>
+      <textarea class="cmt pcol-note" placeholder="Note (optionnel : produit précis, angle…)">${esc(r.comment||'')}</textarea>
+      <button class="pcol-btn" aria-pressed="${on}">${on?'✓ À promouvoir':'Promouvoir'}</button>`;
+    el.querySelector('.pcol-btn').addEventListener('click',()=>togglePromo(c));
+    const note=el.querySelector('.pcol-note'); let t;
+    note.addEventListener('input',()=>{clearTimeout(t);t=setTimeout(()=>savePromo(c),700);});
+    note.addEventListener('blur',()=>savePromo(c));
+    return el;
+  }
+  function togglePromo(c){
+    const id='COL:'+c.handle; const r=state[id]||(state[id]={ad_id:id});
+    r.status = r.status==='valide' ? null : 'valide';
+    paintPromo(id); savePromo(c); updatePromoCount();
+    toast(r.status==='valide' ? 'Ajouté à promouvoir' : 'Retiré');
+  }
+  async function savePromo(c){
+    const id='COL:'+c.handle; const el=document.querySelector(`.pcol[data-id="${id}"]`);
+    const note=el?el.querySelector('.pcol-note'):null;
+    const r=state[id]||(state[id]={ad_id:id});
+    r.comment=note?note.value:(r.comment||''); r.reviewer=reviewer;
+    try{ await Store.save({ad_id:id, ad_label:c.title, ad_kind:'collection', status:r.status||null, comment:r.comment||null, reviewer:reviewer}); }catch(e){}
+  }
+  function paintPromo(id){
+    document.querySelectorAll(`.pcol[data-id="${id}"]`).forEach(el=>{
+      const on=(state[id]||{}).status==='valide';
+      el.classList.toggle('on',on);
+      const b=el.querySelector('.pcol-btn'); if(b){b.setAttribute('aria-pressed',on); b.textContent=on?'✓ À promouvoir':'Promouvoir';}
+    });
+  }
+  function updatePromoCount(){
+    const n=Object.keys(state).filter(k=>k.indexOf('COL:')===0 && (state[k]||{}).status==='valide').length;
+    const el=document.getElementById('promoCount'); if(el) el.textContent=n;
+  }
+
   /* ---------------- ADMIN (Ouchylon) ---------------- */
   function renderAdmin(){
     // tiles
@@ -261,6 +317,7 @@
   const legendOrg=()=>Object.values(CAT).map(c=>{const col={produit:'#16ABF5',montalpi:'#EA9A0B',conseil:'#0FB5A6',equipe:'#7C6BD9',aspirationnel:'#8798AB'};
     return `<span class="lg"><i style="background:${col[Object.keys(CAT).find(k=>CAT[k]===c)]}"></i>${c.l}</span>`;}).join('');
   function applyFilter(){
+    if(PAGE==='review' && view==='promo'){ document.querySelectorAll('#viewPromo .sec').forEach(s=>s.style.display=''); return; }
     const sel = PAGE==='admin' ? '.arow' : '.card';
     document.querySelectorAll(sel).forEach(c=>{
       const st=c.dataset.st||'attente';
@@ -274,11 +331,12 @@
   }
   function setView(v){
     view=v;
-    const tp=document.getElementById('tabPaid'), to=document.getElementById('tabOrg');
-    if(tp){tp.setAttribute('aria-selected',v==='paid'); to.setAttribute('aria-selected',v==='org');}
-    const vp=document.getElementById('viewPaid'), vo=document.getElementById('viewOrg');
-    if(vp){vp.classList.toggle('on',v==='paid'); vo.classList.toggle('on',v==='org');}
-    const lg=document.getElementById('legend'); if(lg&&PAGE==='review') lg.innerHTML=v==='paid'?legendPaid():legendOrg();
+    [['Promo','promo'],['Paid','paid'],['Org','org']].forEach(([x,val])=>{
+      const t=document.getElementById('tab'+x); if(t)t.setAttribute('aria-selected', v===val);
+      const s=document.getElementById('view'+x); if(s)s.classList.toggle('on', v===val);
+    });
+    const lg=document.getElementById('legend'); if(lg&&PAGE==='review') lg.innerHTML = v==='paid'?legendPaid():(v==='org'?legendOrg():'');
+    const flt=document.getElementById('filters'); if(flt) flt.style.display = (v==='promo'?'none':'');
     if(PAGE==='admin') renderAdmin(); else applyFilter();
     scrollTo({top:0,behavior:'instant'});
   }
@@ -288,11 +346,14 @@
     Object.keys(map).forEach(id=>{ state[id]=map[id]; });
     if(PAGE==='admin'){ renderAdmin(); return; }
     Object.keys(map).forEach(id=>{
+      if(id.indexOf('COL:')===0){ paintPromo(id);
+        const pe=document.querySelector(`.pcol[data-id="${id}"]`); const pn=pe?pe.querySelector('.pcol-note'):null;
+        if(pn && pn!==active) pn.value=map[id].comment||''; return; }
       paintCard(id);
       const card=document.querySelector(`.card[data-id="${id}"]`); if(!card)return;
       const cmt=card.querySelector('.cmt'); if(cmt && cmt!==active) cmt.value=map[id].comment||'';
     });
-    updateProgress(); applyFilter();
+    updateProgress(); updatePromoCount(); applyFilter();
   }
 
   /* ---------------- lightbox / toast / theme ---------------- */
@@ -319,6 +380,7 @@
   /* ---------------- wiring ---------------- */
   const tp=document.getElementById('tabPaid'), to=document.getElementById('tabOrg');
   if(tp){tp.addEventListener('click',()=>setView('paid')); to.addEventListener('click',()=>setView('org'));}
+  const tpr=document.getElementById('tabPromo'); if(tpr)tpr.addEventListener('click',()=>setView('promo'));
   const flt=document.getElementById('filters');
   if(flt)flt.addEventListener('click',e=>{const b=e.target.closest('.chip'); if(!b)return; filter=b.dataset.f;
     flt.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===b)); applyFilter();});

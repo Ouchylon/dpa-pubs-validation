@@ -21,6 +21,7 @@
 </div></header>
 
 <div class="tabs" role="tablist">
+  <button class="tab" id="tabPromo" role="tab" aria-selected="false">🛒 Produits à promouvoir</button>
   <button class="tab" id="tabPaid" role="tab" aria-selected="true">💰 Campagnes payantes</button>
   <button class="tab" id="tabOrg" role="tab" aria-selected="false">📅 Calendrier organique</button>
 </div>
@@ -35,6 +36,14 @@
 </div></div>
 
 <main class="wrap">
+  <section class="view" id="viewPromo">
+    <div class="hero">
+      <div class="eyebrow">À choisir · Publicités payantes</div>
+      <h1>Quels produits veut-on promouvoir ?</h1>
+      <p class="lede">Cochez les <b>collections</b> (catégories de produits) que vous voulez mettre en pub payante. Ajoutez une note au besoin (ex. un produit précis, un angle). <b><span id="promoCount">0</span> collection(s) choisie(s)</b> — je monte les pubs autour de celles-là (ciblage <b>100 km</b> autour du magasin).</p>
+    </div>
+    <div id="promoApp"></div>
+  </section>
   <section class="view on" id="viewPaid">
     <div class="hero">
       <div class="eyebrow">À valider · Facebook</div>
@@ -66,6 +75,7 @@
 
 <script src="config.js"></script>
 <script src="data.js"></script>
+<script src="collections.js"></script>
 <script src="store.js"></script>
 <script src="app.js"></script>
 </body>

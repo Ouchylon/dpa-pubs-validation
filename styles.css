@@ -181,6 +181,20 @@ table.bud tr.tot td.n{color:var(--accent-deep)}
 .pfoot .copyall.ok{background:var(--keep);color:#fff}
 .pdecwrap{display:flex;flex-direction:column;gap:8px;margin-top:4px;padding-top:12px;border-top:1px solid var(--line-2)}
 .grid.paidgrid{grid-template-columns:repeat(auto-fill,minmax(345px,1fr))}
+
+/* ---- sélecteur de collections (Produits à promouvoir) ---- */
+.grid.promogrid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.pcol{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:13px 14px;display:flex;flex-direction:column;gap:9px;box-shadow:var(--shadow);transition:.15s}
+.pcol.on{border-color:var(--keep);box-shadow:0 0 0 1px var(--keep),var(--shadow);background:var(--keep-soft)}
+.pcol-t{font-size:13.5px;font-weight:650;letter-spacing:-.01em;line-height:1.25}
+.pcol-m{font-size:11.5px;color:var(--muted);font-weight:600}
+.pcol-m a{color:var(--accent-deep);font-weight:600;text-decoration:none}
+.pcol-m a:hover{text-decoration:underline}
+.pcol-note{width:100%;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:8px;padding:7px 9px;font-size:12px;resize:vertical;min-height:30px;line-height:1.4}
+.pcol-note::placeholder{color:var(--muted)}
+.pcol-btn{border:1.5px solid var(--line);background:var(--surface-2);color:var(--muted);border-radius:9px;padding:9px;font-size:12.5px;font-weight:700;transition:.14s;margin-top:auto}
+.pcol-btn:hover{border-color:var(--keep);color:var(--keep)}
+.pcol-btn[aria-pressed="true"]{background:var(--keep);border-color:var(--keep);color:#fff}
 @media (max-width:560px){.grid.paidgrid{grid-template-columns:1fr}.kv{grid-template-columns:92px 1fr}}
 .more{align-self:flex-start;background:none;border:none;color:var(--accent-deep);font-size:12px;font-weight:600;padding:0}
 .more:hover{text-decoration:underline}
