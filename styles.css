@@ -195,6 +195,20 @@ table.bud tr.tot td.n{color:var(--accent-deep)}
 .pcol-btn{border:1.5px solid var(--line);background:var(--surface-2);color:var(--muted);border-radius:9px;padding:9px;font-size:12.5px;font-weight:700;transition:.14s;margin-top:auto}
 .pcol-btn:hover{border-color:var(--keep);color:var(--keep)}
 .pcol-btn[aria-pressed="true"]{background:var(--keep);border-color:var(--keep);color:#fff}
+.pcol-img{position:relative;display:block;aspect-ratio:1/1;background:var(--surface-2);border-radius:9px;overflow:hidden;cursor:zoom-in}
+.pcol-img img{width:100%;height:100%;object-fit:cover;display:block}
+.pcol-img.ph{display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-deep));text-decoration:none;cursor:pointer}
+.pcol-count{position:absolute;bottom:6px;left:6px;background:rgba(6,18,28,.72);color:#fff;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:6px;backdrop-filter:blur(3px)}
+.pcol-zoom{position:absolute;top:6px;right:6px;background:rgba(6,18,28,.72);color:#fff;width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font-size:11px;backdrop-filter:blur(3px)}
+/* récap & message à Ouchylon */
+.msgbox{width:100%;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:11px 13px;font-size:13.5px;line-height:1.5;resize:vertical;min-height:100px}
+.msgbox::placeholder{color:var(--muted)}
+.recap-g{margin-top:14px}
+.recap-gh{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;margin-bottom:8px}
+.recap-gh span{color:var(--accent-deep)}
+.recap-i{border:1px solid var(--line-2);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:var(--surface-2)}
+.recap-l{font-size:12.5px;font-weight:650;color:var(--ink);margin-bottom:3px}
+.recap-c{font-size:13px;color:var(--muted);line-height:1.5;white-space:pre-wrap}
 @media (max-width:560px){.grid.paidgrid{grid-template-columns:1fr}.kv{grid-template-columns:92px 1fr}}
 .more{align-self:flex-start;background:none;border:none;color:var(--accent-deep);font-size:12px;font-weight:600;padding:0}
 .more:hover{text-decoration:underline}

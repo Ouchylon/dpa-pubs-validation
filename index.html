@@ -24,6 +24,7 @@
   <button class="tab" id="tabPromo" role="tab" aria-selected="false">🛒 Produits à promouvoir</button>
   <button class="tab" id="tabPaid" role="tab" aria-selected="true">💰 Campagnes payantes</button>
   <button class="tab" id="tabOrg" role="tab" aria-selected="false">📅 Calendrier organique</button>
+  <button class="tab" id="tabRecap" role="tab" aria-selected="false">📋 Récap & messages</button>
 </div>
 <div class="subbar"><div class="subbar-in">
   <div class="legend" id="legend"></div>
@@ -60,6 +61,20 @@
       <p class="lede">Les publications prévues du 26 juin au 20 juillet. Même chose : <b>Valider</b> / <b>Refuser</b> + commentaire au besoin.</p>
     </div>
     <div id="orgApp"></div>
+  </section>
+  <section class="view" id="viewRecap">
+    <div class="hero">
+      <div class="eyebrow">Votre récap</div>
+      <h1>Vos commentaires & un mot à Ouchylon</h1>
+      <p class="lede">Retrouvez tout ce que vous avez écrit, et laissez un message libre (liens, idées, précisions) à Ouchylon.</p>
+    </div>
+    <div class="panel">
+      <h2><span class="ic">✍️</span> Message à Ouchylon</h2>
+      <p class="sub">Écrivez ce que vous voulez : liens, précisions sur des produits, idées. Sauvegardé automatiquement.</p>
+      <textarea id="msgBox" class="msgbox" placeholder="Ex. : Le produit X n'est plus vendu · voici un lien vers un fournisseur · j'aimerais promouvoir surtout…"></textarea>
+      <div class="saved" id="msgSaved">✓ enregistré</div>
+    </div>
+    <div id="recapApp"></div>
   </section>
   <div class="foot">Destination Piscine Aide · 1451 Rue de Montarville, Saint-Bruno-de-Montarville · destinationpiscineaide.com · 450-723-1110</div>
 </main>

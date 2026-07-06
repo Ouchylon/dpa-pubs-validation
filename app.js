@@ -67,7 +67,7 @@
     el.innerHTML=a+b+c;
   }
   function renderReview(){
-    renderStrategy(); renderPaidReview(); renderOrgReview(); renderPromo();
+    renderStrategy(); renderPaidReview(); renderOrgReview(); renderPromo(); renderRecap(); loadMessage();
     document.getElementById('legend').innerHTML = view==='paid'?legendPaid():legendOrg();
     updateProgress(); applyFilter();
   }
@@ -237,19 +237,24 @@
   }
   function promoCard(c){
     const id='COL:'+c.handle; const r=state[id]||{}; const on=r.status==='valide';
+    const link=esc(COLS.base+c.handle); const imgs=c.imgs||[];
+    const media = imgs.length
+      ? `<div class="pcol-img" data-h="${esc(c.handle)}"><img src="${esc(imgs[0])}" alt="" loading="lazy"><span class="pcol-count">${c.count} produits</span><span class="pcol-zoom">⤢</span></div>`
+      : `<a class="pcol-img ph" href="${link}" target="_blank" rel="noopener"><span style="font-size:26px">🗂️</span><span class="pcol-count">${c.count} produits</span></a>`;
     const el=document.createElement('article');
     el.className='pcol'+(on?' on':''); el.dataset.id=id;
     el.innerHTML=`
-      <div class="pcol-h">
-        <div class="pcol-t">${esc(c.title)}</div>
-        <div class="pcol-m">${c.count} produit(s) · <a href="${esc(COLS.base+c.handle)}" target="_blank" rel="noopener">voir ↗</a></div>
-      </div>
+      ${media}
+      <div class="pcol-t">${esc(c.title)}</div>
+      <div class="pcol-m"><a href="${link}" target="_blank" rel="noopener">voir sur le site ↗</a></div>
       <textarea class="cmt pcol-note" placeholder="Note (optionnel : produit précis, angle…)">${esc(r.comment||'')}</textarea>
       <button class="pcol-btn" aria-pressed="${on}">${on?'✓ À promouvoir':'Promouvoir'}</button>`;
     el.querySelector('.pcol-btn').addEventListener('click',()=>togglePromo(c));
     const note=el.querySelector('.pcol-note'); let t;
     note.addEventListener('input',()=>{clearTimeout(t);t=setTimeout(()=>savePromo(c),700);});
     note.addEventListener('blur',()=>savePromo(c));
+    const im=el.querySelector('.pcol-img[data-h]');
+    if(im) im.addEventListener('click',()=>openLB({slides:imgs,title:c.title},0));
     return el;
   }
   function togglePromo(c){
@@ -275,6 +280,44 @@
   function updatePromoCount(){
     const n=Object.keys(state).filter(k=>k.indexOf('COL:')===0 && (state[k]||{}).status==='valide').length;
     const el=document.getElementById('promoCount'); if(el) el.textContent=n;
+  }
+
+  /* ---------------- RÉCAP & MESSAGE ---------------- */
+  function catOf(k){
+    if(k.indexOf('COL:')===0) return 'Collections à promouvoir';
+    const a=byId[k]; if(a) return a.kind==='paid'?'Campagnes payantes':'Calendrier organique';
+    return 'Autre';
+  }
+  function renderRecap(){
+    const el=document.getElementById('recapApp'); if(!el)return;
+    const keys=Object.keys(state).filter(k=>k.indexOf('MSG:')!==0 && ((state[k]||{}).comment||'').trim());
+    const groups={};
+    keys.forEach(k=>{const g=catOf(k);(groups[g]=groups[g]||[]).push(state[k]);});
+    const order=['Campagnes payantes','Calendrier organique','Collections à promouvoir','Autre'];
+    let html=`<div class="panel"><h2><span class="ic">💬</span> Tous vos commentaires (${keys.length})</h2>`;
+    if(!keys.length) html+=`<p class="sub">Aucun commentaire pour l'instant. Ce que vous écrivez sur les pubs, le calendrier ou les collections apparaîtra ici.</p>`;
+    order.forEach(g=>{ if(!groups[g])return;
+      html+=`<div class="recap-g"><div class="recap-gh">${esc(g)} <span>(${groups[g].length})</span></div>`;
+      groups[g].forEach(r=>{ const st=r.status==='valide'?'<b style="color:var(--keep)">✓</b>':(r.status==='refuse'?'<b style="color:var(--revoir)">✗</b>':'•');
+        html+=`<div class="recap-i"><div class="recap-l">${st} ${esc(r.ad_label||r.ad_id)}</div><div class="recap-c">${esc(r.comment)}</div></div>`;});
+      html+='</div>';
+    });
+    html+='</div>';
+    el.innerHTML=html;
+  }
+  function msgId(){ return 'MSG:'+reviewer; }
+  async function saveMessage(){
+    const box=document.getElementById('msgBox'); if(!box)return;
+    const id=msgId(); const r=state[id]||(state[id]={ad_id:id});
+    r.comment=box.value; r.reviewer=reviewer; r.status=null;
+    const sv=document.getElementById('msgSaved');
+    try{ await Store.save({ad_id:id, ad_label:'Message de '+reviewer, ad_kind:'message', status:null, comment:box.value||null, reviewer:reviewer});
+      if(sv){sv.textContent='✓ enregistré';sv.className='saved on';setTimeout(()=>sv.classList.remove('on'),1500);} }
+    catch(e){ if(sv){sv.textContent='⚠ non enregistré — réessayez';sv.className='saved on err';} }
+  }
+  function loadMessage(){
+    const box=document.getElementById('msgBox'); if(!box)return;
+    const r=state[msgId()]; if(r && document.activeElement!==box) box.value=r.comment||'';
   }
 
   /* ---------------- ADMIN (Ouchylon) ---------------- */
@@ -318,6 +361,7 @@
     return `<span class="lg"><i style="background:${col[Object.keys(CAT).find(k=>CAT[k]===c)]}"></i>${c.l}</span>`;}).join('');
   function applyFilter(){
     if(PAGE==='review' && view==='promo'){ document.querySelectorAll('#viewPromo .sec').forEach(s=>s.style.display=''); return; }
+    if(PAGE==='review' && view==='recap'){ return; }
     const sel = PAGE==='admin' ? '.arow' : '.card';
     document.querySelectorAll(sel).forEach(c=>{
       const st=c.dataset.st||'attente';
@@ -331,12 +375,13 @@
   }
   function setView(v){
     view=v;
-    [['Promo','promo'],['Paid','paid'],['Org','org']].forEach(([x,val])=>{
+    [['Promo','promo'],['Paid','paid'],['Org','org'],['Recap','recap']].forEach(([x,val])=>{
       const t=document.getElementById('tab'+x); if(t)t.setAttribute('aria-selected', v===val);
       const s=document.getElementById('view'+x); if(s)s.classList.toggle('on', v===val);
     });
     const lg=document.getElementById('legend'); if(lg&&PAGE==='review') lg.innerHTML = v==='paid'?legendPaid():(v==='org'?legendOrg():'');
-    const flt=document.getElementById('filters'); if(flt) flt.style.display = (v==='promo'?'none':'');
+    const flt=document.getElementById('filters'); if(flt) flt.style.display = ((v==='promo'||v==='recap')?'none':'');
+    if(v==='recap'){ renderRecap(); loadMessage(); }
     if(PAGE==='admin') renderAdmin(); else applyFilter();
     scrollTo({top:0,behavior:'instant'});
   }
@@ -353,7 +398,7 @@
       const card=document.querySelector(`.card[data-id="${id}"]`); if(!card)return;
       const cmt=card.querySelector('.cmt'); if(cmt && cmt!==active) cmt.value=map[id].comment||'';
     });
-    updateProgress(); updatePromoCount(); applyFilter();
+    updateProgress(); updatePromoCount(); renderRecap(); loadMessage(); applyFilter();
   }
 
   /* ---------------- lightbox / toast / theme ---------------- */
@@ -381,6 +426,9 @@
   const tp=document.getElementById('tabPaid'), to=document.getElementById('tabOrg');
   if(tp){tp.addEventListener('click',()=>setView('paid')); to.addEventListener('click',()=>setView('org'));}
   const tpr=document.getElementById('tabPromo'); if(tpr)tpr.addEventListener('click',()=>setView('promo'));
+  const trc=document.getElementById('tabRecap'); if(trc)trc.addEventListener('click',()=>setView('recap'));
+  const msgBox=document.getElementById('msgBox');
+  if(msgBox){ let mt; msgBox.addEventListener('input',()=>{clearTimeout(mt);mt=setTimeout(saveMessage,800);}); msgBox.addEventListener('blur',saveMessage); }
   const flt=document.getElementById('filters');
   if(flt)flt.addEventListener('click',e=>{const b=e.target.closest('.chip'); if(!b)return; filter=b.dataset.f;
     flt.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===b)); applyFilter();});
